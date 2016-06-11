@@ -7,7 +7,7 @@ PlatformerGame.Logo.prototype = {
   create: function() {
 
     //Change the background colour
-    this.game.stage.backgroundColor = "#333";
+    this.game.stage.backgroundColor = "#535";
 
     this.platforms = this.game.add.group();
 

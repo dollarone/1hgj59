@@ -43,11 +43,11 @@ PlatformerGame.Game.prototype = {
         this.remains = 0;
 
         //  Here we'll create 12 of them evenly spaced apart
-        for (var j = 0; j <= 5; j++) {
-            for (var i = 0; i < 12; i++)
+        for (var j = 1; j <= 3; j++) {
+            for (var i = 0; i < 10; i++)
             {
                 //  Create a star inside of the 'stars' group
-                var star = this.stars.create(4+i * 66, 64+(j*34), 'colours');
+                var star = this.stars.create(64+ 4+i * 66, 64+(j*34), 'colours');
 
                 //  Let gravity do its thing
                 star.body.gravity.y = 0;
@@ -80,9 +80,17 @@ PlatformerGame.Game.prototype = {
         this.cursors = this.game.input.keyboard.createCursorKeys();
         
         this.timer = 0;
-
+        this.rKey = this.game.input.keyboard.addKey(Phaser.Keyboard.R);
+        this.rKey.onDown.add(this.reset, this);
         this.showDebug = false; 
         this.startBall();
+        this.gameover = false;
+
+    },
+
+
+    reset: function() {
+        this.state.restart();
     },
 
     startBall: function() {
@@ -94,6 +102,9 @@ PlatformerGame.Game.prototype = {
 
     },
     update: function() {
+        if (this.gameover) {
+            return;
+        }
         this.timer++;
         //  Collide the player and the stars with the platforms
         //this.game.physics.arcade.collide(this.player, this.stars);
@@ -122,16 +133,16 @@ PlatformerGame.Game.prototype = {
         if (this.timeout == 0) {
             if (this.ball.y < 8) {
                 this.ball.body.velocity.y *= -1;
-                this.timeout = 2;
+                this.timeout = 5;
             }
 
-            if (this.ball.x > (this.game.world.width-8) {
+            if (this.ball.x > (this.game.world.width-8)) {
                 this.ball.body.velocity.x *= -1;
-                this.timeout = 2;
+                this.timeout = 5;
             }
             else if (this.ball.x < 8) {
                 this.ball.body.velocity.x *= -1;
-                this.timeout = 2;
+                this.timeout = 5;
             }
         }
         else if (this.timeout > 0) {
@@ -151,13 +162,31 @@ PlatformerGame.Game.prototype = {
             this.win();
         }
 
+        if (this.score == 0) {
+            this.lose();
+        }
+
+
     },
+    lose: function() {
+
+        this.scoresText = this.game.add.text(320, 316, 'You lose!', { fontSize: '32px', fill: '#000' });
+//        this.game.paused = true;
+        this.gameover= true;
+        this.ball.body.velocity.y=0;
+        this.ball.body.velocity.x=0;
+        this.player.body.velocity.x=0;
+    },
+
 
     win: function() {
 
         this.scoresText = this.game.add.text(280, 316, 'You win! Score: ' + this.score, { fontSize: '32px', fill: '#000' });
-        this.game.paused = true;
-
+//        this.game.paused = true;
+        this.gameover = true;
+        this.ball.body.velocity.y=0;
+        this.ball.body.velocity.x=0;
+        this.player.body.velocity.x=0;
 
     },
 
@@ -185,7 +214,7 @@ PlatformerGame.Game.prototype = {
     collectStar : function(ball, star) {
         if (this.timeout == 0) {
             if (star.alive) {
-                if (ball.body.touching.bottom || ball.body.touching.up) {
+                if (ball.body.touching.down || ball.body.touching.up) {
                     this.ball.body.velocity.y *= -1;
                 }
                 else {
@@ -193,7 +222,7 @@ PlatformerGame.Game.prototype = {
                 
                 }
                
-                this.timeout = 1;
+                this.timeout = 2;
             }
             // Removes the star from the screen
             
